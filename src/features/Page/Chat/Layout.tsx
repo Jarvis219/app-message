@@ -1,14 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Avatar } from '@mui/material';
-import { Input, Form, Button, InputRef } from 'antd';
-import { SendOutlined } from '@ant-design/icons';
+import { Input, Form, InputRef } from 'antd';
 import ContentChat from './ContentChat';
 import { useLocation } from 'react-router-dom';
-import { newSocket } from 'utils/utils';
+import { newSocket, getID } from 'utils/utils';
 import { SOCKET_ON, zoomSocket, zoomSocketEvent, zoomSocketEventTypeActive } from 'constant/socket';
 import { dataChat, user, zoomState } from 'models/zoom';
-import { getID } from '../../../utils/utils';
 import moment from 'moment';
+import SendIcon from '@mui/icons-material/Send';
+import PhotoCamera from '@mui/icons-material/PhotoCamera';
+import IconButton from '@mui/material/IconButton';
+import Button from '@mui/material/Button';
+import ImageShow from 'components/Image';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import { firebaseUploadPhoto } from 'firebaseConfig/storage';
 
 const Layout: React.FC = () => {
   // id zoom
@@ -18,12 +23,34 @@ const Layout: React.FC = () => {
   const [messages, setMessages] = useState<string>('');
   const mesRef = useRef<InputRef>(null);
   const [dataMes, setDataMes] = useState<zoomState | undefined>(undefined);
+  const [image, setImage] = useState<any>();
+  const [imageSend, setImageSend] = useState<any>();
 
-  function handleSubmit() {
-    if (messages.trim()) {
+  useEffect(() => {
+    return () => {
+      image && URL.revokeObjectURL(image.pre);
+    };
+  }, [image]);
+
+  function handleChangeImage(e: any) {
+    setImageSend(undefined);
+    setImageSend(e.target.files);
+    const file = e.target.files[0];
+    file.pre = URL.createObjectURL(file);
+    setImage(file);
+  }
+
+  async function handleSubmit() {
+    let photo;
+    if (messages.trim() || imageSend) {
+      if (imageSend) {
+        photo = await firebaseUploadPhoto(imageSend);
+      }
+
       const data: dataChat = {
         userChat: getID(),
         message: messages,
+        photo: photo ? photo : undefined,
         createdAt: moment().format('HH:mm:ss DD-MM-YYYY'),
         updatedAt: moment().format('HH:mm:ss DD-MM-YYYY'),
       };
@@ -35,6 +62,8 @@ const Layout: React.FC = () => {
         data
       );
       setMessages('');
+      image && URL.revokeObjectURL(image.pre);
+      setImage(undefined);
       form.resetFields();
       mesRef.current?.focus();
     }
@@ -82,7 +111,17 @@ const Layout: React.FC = () => {
       </header>
       <section className="h-[570px] relative">
         <div>{dataMes && <ContentChat onDataMes={dataMes} id={getID()} />}</div>
-        <div className=" sticky z-10 bottom-0 h-14 top-[595px]  bg-gray-200">
+        <div className="z-20 absolute bottom-32 right-5 w-32 h-32 object-cover">
+          {image && <ImageShow src={image.pre} className="max-h-32 " />}
+          {image && (
+            <DeleteForeverIcon
+              color="error"
+              onClick={() => setImage(undefined)}
+              style={{ position: 'absolute', top: 0, right: 0, cursor: 'pointer' }}
+            />
+          )}
+        </div>
+        <div className=" sticky z-10 bottom-0 h-14 top-[590px]  bg-gray-200">
           <Form
             form={form}
             name="basic"
@@ -91,32 +130,53 @@ const Layout: React.FC = () => {
             autoComplete="off"
             style={{
               display: 'grid',
-              gridTemplateColumns: '1fr 50px',
-              gridGap: '10px',
+              gridTemplateColumns: '1fr  150px',
+              gridGap: '20px',
               width: '100%',
               padding: '12px 23px',
             }}
           >
-            <Form.Item
-              name="username"
-              className="w-full max-w-full m-0"
-              rules={[{ required: true, message: 'Vui lòng nhập nội dung ' }]}
-            >
-              <Input
-                className="max-w-full"
-                onChange={(e) => setMessages(e.target.value)}
-                placeholder="Nhập tin nhắn..."
-                ref={mesRef}
-                value={messages}
-              />
-            </Form.Item>
+            <div className="w-full max-w-full m-0 relative">
+              <Form.Item
+                name="username"
+                className="w-full max-w-full m-0 "
+                rules={[{ required: true, message: 'Vui lòng nhập nội dung ' }]}
+              >
+                <Input
+                  className="max-w-full"
+                  onChange={(e) => setMessages(e.target.value)}
+                  placeholder="Nhập tin nhắn..."
+                  ref={mesRef}
+                  value={messages}
+                />
+              </Form.Item>
+              <Form.Item name="file" className="z-20 absolute -top-[3px] right-0">
+                <label htmlFor="icon-button-file">
+                  <IconButton color="primary" aria-label="upload picture" component="span">
+                    <Input
+                      style={{ display: 'none' }}
+                      size="small"
+                      accept="image/*"
+                      id="icon-button-file"
+                      type="file"
+                      className=" z-0"
+                      onChange={handleChangeImage}
+                    />
+                    <PhotoCamera />
+                  </IconButton>
+                </label>
+              </Form.Item>
+            </div>
+
             <Form.Item className="m-0">
               <Button
+                size="small"
                 onClick={handleSubmit}
-                type="primary"
-                htmlType="button"
-                icon={<SendOutlined />}
-              />
+                variant="contained"
+                endIcon={<SendIcon />}
+              >
+                Send
+              </Button>
             </Form.Item>
           </Form>
         </div>

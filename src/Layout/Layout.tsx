@@ -21,4 +21,8 @@ export const Layout: LayoutConfig[] = [
     path: '/login',
     element: <Login />,
   },
+  {
+    path: '/profile',
+    element: <Dashboard />,
+  },
 ];

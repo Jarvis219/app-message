@@ -31,7 +31,7 @@ const Facebook: React.FC = () => {
   React.useEffect(() => {
     if (loginSuccess) {
       setUser(current);
-      navigate('/chat');
+      navigate('/profile');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loginSuccess, current]);

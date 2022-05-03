@@ -3,6 +3,7 @@ import React from 'react';
 import { getID } from 'utils/utils';
 // import { backgroundColorThemeChat } from 'constant';
 import { zoomState, dataChat, user } from '../../../models/zoom';
+import ImageShow from 'components/Image';
 
 interface Props {
   id: string;
@@ -57,10 +58,19 @@ interface ChatProps {
 const MyChat: React.FC<ChatProps> = ({ data, avatar }: ChatProps) => (
   <React.Fragment>
     <div className={`flex justify-end my-2`}>
-      <div
-        className={`mr-3 w-auto max-w-[80%] px-2 rounded bg-[#0183ff] text-white text-left flex items-center`}
-      >
-        <p className="py-2">{data.message}</p>
+      <div>
+        {data.photo && (
+          <div>
+            <ImageShow className="max-h-32 h-32 w-32 max-w-32 " src={data.photo} />
+          </div>
+        )}
+        {data.message && (
+          <div
+            className={`pr-3 w-auto max-w-[80%] px-2 rounded bg-[#0183ff] text-white text-left flex items-center`}
+          >
+            <p className="py-2">{data.message}</p>
+          </div>
+        )}
       </div>
 
       <Avatar alt="đây là ảnh đại diện" sx={{ width: 30, height: 30, zIndex: 1 }} src={avatar} />

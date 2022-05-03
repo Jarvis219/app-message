@@ -14,7 +14,7 @@ export interface dataChat {
 }
 
 export interface user {
-  _id: string;
+  _id?: string;
   name: string;
   avatar: string;
   email?: string;

@@ -1,10 +1,10 @@
 import { Menu, Switch, MenuProps } from 'antd';
-import { SettingOutlined, UserAddOutlined, MessageTwoTone } from '@ant-design/icons';
+import { UserAddOutlined, MessageTwoTone } from '@ant-design/icons';
 import React, { useEffect } from 'react';
 import { newSocket } from 'utils/utils';
-import { zoomState, user } from '../../../models/zoom';
+import { zoomState, user } from 'models/zoom';
 import { SOCKET_ON, zoomSocketEvent } from 'constant/socket';
-import { getID } from '../../../utils/utils';
+import { getID } from 'utils/utils';
 import Avatar from '@mui/material/Avatar';
 import { useNavigate } from 'react-router-dom';
 
@@ -42,8 +42,12 @@ const MenuSide: React.FC = () => {
   };
 
   const onClick: MenuProps['onClick'] = (e) => {
-    navigate('/chat', { state: { id: e.key } });
     setCurrent(e.key);
+    if (e.key !== 'profile') {
+      navigate('/chat', { state: { id: e.key } });
+      return;
+    }
+    navigate('/profile');
   };
 
   useEffect(() => {
@@ -76,13 +80,6 @@ const MenuSide: React.FC = () => {
           )
         )
     ),
-
-    // getItem('Navigation Three', 'sub4', <SettingOutlined />, [
-    //   getItem('Option 9', '9'),
-    //   getItem('Option 10', '10'),
-    //   getItem('Option 11', '11'),
-    //   getItem('Option 12', '12'),
-    // ]),
   ];
 
   return (
@@ -96,7 +93,7 @@ const MenuSide: React.FC = () => {
       <Menu
         theme={theme}
         onClick={onClick}
-        style={{ height: '100%' }}
+        style={{ height: '100%', marginTop: '-4px' }}
         defaultOpenKeys={['sub1']}
         selectedKeys={[current]}
         mode="inline"
