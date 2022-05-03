@@ -84,10 +84,19 @@ const FriendChat: React.FC<ChatProps> = ({ data, avatar }: ChatProps) => {
       <div className={`flex justify-start my-2`}>
         <Avatar alt="đây là ảnh đại diện" sx={{ width: 30, height: 30, zIndex: 1 }} src={avatar} />
 
-        <div
-          className={`ml-3 w-auto max-w-[80%] px-2 rounded bg-[#95999c] text-white text-left flex items-center`}
-        >
-          <p className="py-2">{data.message}</p>
+        <div>
+          {data.photo && (
+            <div>
+              <ImageShow className="max-h-32 h-32 w-32 max-w-32 " src={data.photo} />
+            </div>
+          )}
+          {data.message && (
+            <div
+              className={`pl-3 w-auto max-w-[80%] px-2 rounded bg-[#0183ff] text-white text-left flex items-center`}
+            >
+              <p className="py-2">{data.message}</p>
+            </div>
+          )}
         </div>
       </div>
     </React.Fragment>
